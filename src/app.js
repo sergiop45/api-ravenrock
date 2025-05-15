@@ -1,6 +1,17 @@
 const express = require("express");
 const app = express();
-const port = 4000;
+const mongoose = require("mongoose");
+
+async function conectarDB() {
+    try {
+      await mongoose.connect(process.env.MONGO_URL);
+      console.log("✅ Conectado ao DB.");
+    } catch (err) {
+      console.log("❌ Erro ao conectar ao DB:", err);
+    }
+  }
+  
+conectarDB();
 
 const usersRouter = require("./routes/users.routes");
 const tasksRouter = require("./routes/tasks.routes");
