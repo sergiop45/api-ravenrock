@@ -25,7 +25,7 @@ router.post("/register", async (req, res) => {
 
 });
 
-router. post("/login", async (req, res) => {
+router.post("/login", async (req, res) => {
 
     try {
 
@@ -35,7 +35,7 @@ router. post("/login", async (req, res) => {
 
         if (!user || !(await bcrypt.compare(password, user.password))) {
 
-            res.status(401).json({ error: "Invalid credentials."});
+            return res.status(401).json({ error: "Invalid credentials."});
 
         }
 

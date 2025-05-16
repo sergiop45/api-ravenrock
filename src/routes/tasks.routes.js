@@ -1,8 +1,10 @@
 const express = require("express");
-const router = express.Router()
+const router = express.Router();
+const authMidleware = require("../midlewere/auth");
+const taskController = require("../controllers/tasks.controller");
 
-router.get("/", (req, res) => {
-    res.send("todas as tarefas");
-});
+router.post("/", taskController.create);
+router.get("/", taskController.findAll);
+router.delete("/:id", taskController.remove);
 
 module.exports = router;
