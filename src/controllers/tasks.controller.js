@@ -56,8 +56,35 @@ const remove = async (req, res) => {
 
 }
 
+const update = async(req, res) => {
+
+    try {
+        
+        const {id} = req.params;
+        const { title, description, status, dueDate } = req.body;
+        
+        const updatedTask = await taskModel.findByIdAndUpdate(
+            id,
+            { title, description, status, dueDate },
+            { new: true }
+        );
+
+        if(!updatedTask) {
+            return res.status(404).json({message: "Task not found!"});
+        }
+
+        res.status(200).json({ message: "Task updated!", task: updatedTask });
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+    
+
+}
+
 module.exports = {
     create,
     findAll,
-    remove
+    remove,
+    update
 }
