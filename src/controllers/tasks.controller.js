@@ -19,6 +19,29 @@ const create = async (req, res) => {
 
 }
 
+const findOne = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+        const task = await taskModel.findById(id);
+
+        if(!task) {
+
+            return res.status(404).json({ message: "Task not found"});
+
+        } 
+
+        res.status(200).json(task);
+
+    } catch (err) {
+
+        res.status(500).json({error: err.message});
+
+    }
+
+}
+
 const findAll = async (req, res) => {
 
     try {
@@ -86,5 +109,6 @@ module.exports = {
     create,
     findAll,
     remove,
-    update
+    update,
+    findOne
 }

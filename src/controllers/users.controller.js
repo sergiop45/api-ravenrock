@@ -1,63 +1,104 @@
-const users = []
+const userModel = require("../models/user.model");
+const bcrypt = require("bcrypt");
 
-exports.listar = (req, res) => {
-    res.json(users);
-}
-
-exports.create = (req, res) => {
+const findAll = async (req, res) => {
     
-    const {name, password, email} = req.body;
+    try {
 
-    if(!name || !password || !email) {
-        return res.status(400).json({ erro: "nome, email e senha são obrigatorios!"});
+        const users = await userModel.find();
+
+        if(!users) {
+
+            return res.status(404).json({ message: "Users not found" });
+
+        }
+
+        res.status(200).json(users);
+
+    } catch ( err ) {
+
+        res.status(500).json({ error: err.message });
+
     }
 
-    res.send("usuario criado!")
-} 
+}
 
-exports.findById = (req, res) => {
+const findOne = async (req, res) => {
 
     const { id } = req.params;
-    const user = users.find(u => u.id === id);
+    const user = await userModel.findById(id);
 
     if(!user) {
-        res.status(404).json({erro: "Usuario não encontrado!"});
+        res.status(404).json({erro: "User not found"});
     }
 
-    res.json(user);
+    res.status(200).json(user);
 
 }
 
-exports.delete = (req, res) => {
+const remove = async (req, res) => {
 
-    const {id} = req.params;
-    const index = users.findIndex(u => u.id === id);
+    const { id } = req.params;
+    const userDeleted = await userModel.findByIdAndDelete(id);
 
-    if (index === -1) {
-        return res.status(404).json({erro: "usuario não encontrado!"})
+    if (!userDeleted) {
+        return res.status(404).json({erro: "User not found"})
     }
 
-    users.splice(index, 1);
-
-    res.json({message: "usuario deletado com sucesso!"});
+    res.json({message: "User deleted sucessfully"});
 
 }
 
-exports.update = (req, res) => {
+const update = async (req, res) => {
+    const { id } = req.params;
+    const { name, password, email } = req.body;
 
-    const {id} = req.params;
-    const {name, password, email} = req.body;
+    try {
+        const dataToUpdate = {};
 
-    const user = users.findById(id);
+        if (name && name.trim() !== "") {
+            dataToUpdate.name = name;
+        }
 
-    if (!user) {
-        return res.status(404).json({ erro: "Usuário não encontrado!" });
+        if (email && email.trim() !== "") {
+            dataToUpdate.email = email;
+        }
+
+        if (password && password.trim() !== "") {
+            const hashed = await bcrypt.hash(password, 10);
+            dataToUpdate.password = hashed;
+        }
+
+        if (Object.keys(dataToUpdate).length === 0) {
+            return res.status(400).json({ message: "No valid fields to update" });
+        }
+
+        const userUpdated = await userModel.findByIdAndUpdate(
+            id,
+            dataToUpdate,
+            { new: true }
+        );
+
+        if (!userUpdated) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json({
+            message: "User updated successfully",
+            user: userUpdated
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Error updating user",
+            error: error.message
+        });
     }
+};
 
-    if (name) user.name = name;
-    if (email) user.email = email;
-    if (password) user.password = password;
-  
-    res.json({ mensagem: "Usuário atualizado!", user });
-
+module.exports = {
+    findAll,
+    findOne,
+    remove,
+    update
 }
