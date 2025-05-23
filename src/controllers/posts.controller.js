@@ -33,7 +33,7 @@ const findAll = async (req, res) => {
 
 }
 
-const findById = async (req, res) => {
+const findOne = async (req, res) => {
 
     try {
 
@@ -112,7 +112,7 @@ module.exports =
 {
     create,
     findAll,
-    findById,
+    findOne,
     remove,
     update
 }
